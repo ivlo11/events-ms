@@ -1,0 +1,29 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Events Microservice
+
+Globals:
+  Function:
+    Timeout: 20
+
+Resources:
+  EventsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: io.devwidgets.events.api.lambda.LambdaHandler::handleRequest
+      Runtime: java11
+      MemorySize: 512
+      FunctionName: event-ms
+      Tags:
+        channel: DevWidgets
+        series: serverless-101
+        episode: 001
+
+Outputs:
+  EventsFuntion:
+    Description: Event Functions Arn
+    Value: !GetAtt EventsFunction.Arn
+  EventFucntionRole:
+    Description: Implicit IAM Role created for EventsFunction
+    Value: !GetAtt EventsFunctionRole.Arn

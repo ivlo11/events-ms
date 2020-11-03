@@ -1,0 +1,22 @@
+plugins {
+    id 'java'
+}
+
+group 'io.devwidgets.events'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.amazonaws:aws-lambda-java-events:3.1.0'
+    implementation 'com.amazonaws:aws-lambda-java-core:1.2.0'
+
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.6.7'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.6.7'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.6.7'
+
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.mockito:mockito-core:3.5.13'
+}
