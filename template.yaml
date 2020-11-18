@@ -15,10 +15,16 @@ Resources:
       Runtime: java11
       MemorySize: 512
       FunctionName: event-ms
+      Events:
+        ProxyApiGreedy:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
       Tags:
         channel: DevWidgets
         series: serverless-101
-        episode: 001
+        episode: 003
 
 Outputs:
   EventsFunction:
@@ -27,3 +33,7 @@ Outputs:
   EventFunctionRole:
     Description: Implicit IAM Role created for EventsFunction
     Value: !GetAtt EventsFunctionRole.Arn
+  EventApiGatewayProdState:
+    Description: Implicit Prod Stage url for API Gateway
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+
