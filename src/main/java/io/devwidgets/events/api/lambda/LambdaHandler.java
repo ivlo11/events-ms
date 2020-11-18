@@ -1,46 +1,29 @@
 package io.devwidgets.events.api.lambda;
 
+import com.amazonaws.serverless.exceptions.ContainerInitializationException;
+import com.amazonaws.serverless.proxy.model.AwsProxyRequest;
+import com.amazonaws.serverless.proxy.model.AwsProxyResponse;
+import com.amazonaws.serverless.proxy.spring.SpringBootLambdaContainerHandler;
 import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.RequestHandler;
-import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
-import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import io.devwidgets.events.api.dto.EventDto;
+import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
+import io.devwidgets.events.framework.SpringBootApplicationConfig;
 
-import java.time.OffsetDateTime;
-import java.util.HashMap;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-public class LambdaHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
-  @Override
-  public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
-
-    HashMap<String, String> headers = new HashMap<>();
-    headers.put("Content-Type","application/json");
-    headers.put("x-request-path", input.getPath());
-
-    APIGatewayProxyResponseEvent responseEvent = new APIGatewayProxyResponseEvent().withHeaders(headers);
-
-
-    EventDto eventDto = new EventDto();
-    eventDto.setDescription("The Event is now!");
-    eventDto.setDate(OffsetDateTime.parse("2027-12-03T10:15:30+01:00"));
-
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.registerModule(new JavaTimeModule());
-    mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
+public class LambdaHandler implements RequestStreamHandler {
+  private static final SpringBootLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler;
+  static {
     try {
-      responseEvent.setBody(mapper.writeValueAsString(eventDto));
-      return responseEvent
-          .withStatusCode(200);
-    } catch (JsonProcessingException e) {
+      handler = SpringBootLambdaContainerHandler.getAwsProxyHandler(SpringBootApplicationConfig.class);
+    } catch (ContainerInitializationException e) {
       e.printStackTrace();
-      return responseEvent
-          .withStatusCode(500)
-          .withBody("{}");
+      throw new RuntimeException("Could not initialize Spring Boot application", e);
     }
+  }
+  @Override
+  public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
+    handler.proxyStream(input, output, context);
   }
 }
