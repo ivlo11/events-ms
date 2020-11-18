@@ -21,9 +21,9 @@ Resources:
         episode: 001
 
 Outputs:
-  EventsFuntion:
+  EventsFunction:
     Description: Event Functions Arn
     Value: !GetAtt EventsFunction.Arn
-  EventFucntionRole:
+  EventFunctionRole:
     Description: Implicit IAM Role created for EventsFunction
     Value: !GetAtt EventsFunctionRole.Arn
