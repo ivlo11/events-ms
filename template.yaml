@@ -18,7 +18,7 @@ Resources:
       Tags:
         channel: DevWidgets
         series: serverless-101
-        episode: 001
+        episode: 003
 
 Outputs:
   EventsFunction:
