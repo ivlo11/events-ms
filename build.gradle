@@ -12,6 +12,7 @@ repositories {
 }
 
 dependencies {
+    implementation 'com.amazonaws:aws-java-sdk-dynamodb:1.11.851'
     implementation 'com.amazonaws:aws-lambda-java-events:3.1.0'
     implementation 'com.amazonaws:aws-lambda-java-core:1.2.0'
     implementation 'com.amazonaws.serverless:aws-serverless-java-container-springboot2:1.5.1'

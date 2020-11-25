@@ -2,32 +2,65 @@ package io.devwidgets.events.application.service.impl;
 
 import io.devwidgets.events.api.dto.EventDto;
 import io.devwidgets.events.application.service.IEventService;
+import io.devwidgets.events.domain.model.Event;
+import io.devwidgets.events.domain.service.IEventRepositoryService;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class EventServiceImpl implements IEventService {
 
+  private final IEventRepositoryService eventRepositoryService;
+
+  public EventServiceImpl(IEventRepositoryService eventRepositoryService) {
+    this.eventRepositoryService = eventRepositoryService;
+  }
+
   @Override
   public EventDto getEvent(String id) {
-    return creatStubbedEventDto();
+    if (StringUtils.isEmpty(id)) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No id found in the request");
+    }
+
+    Event eventById = eventRepositoryService.findEventById(id);
+    if (eventById == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No event found matching id(" + id + ")");
+    }
+
+    return convertToDto(eventById);
   }
 
   @Override
   public List<EventDto> getEvents() {
-    ArrayList<EventDto> eventDtos = new ArrayList<>();
-    EventDto eventDto = creatStubbedEventDto();
-    eventDtos.add(eventDto);
+    List<Event> allEvents = eventRepositoryService.findAllEvents();
+
+    if (allEvents == null || allEvents.isEmpty()) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No events found");
+    }
+
+    return convertToDtos(allEvents);
+  }
+
+  private List<EventDto> convertToDtos(List<Event> allEvents) {
+    List<EventDto> eventDtos = new ArrayList<>();
+
+    for(Event event : allEvents) {
+      EventDto eventDto = convertToDto(event);
+      eventDtos.add(eventDto);
+    }
+
     return eventDtos;
   }
 
-  private EventDto creatStubbedEventDto() {
+  private EventDto convertToDto(Event event) {
     EventDto eventDto = new EventDto();
-    eventDto.setDescription("The Event is now!");
-    eventDto.setDate(OffsetDateTime.parse("2027-12-03T10:15:30+01:00"));
+    eventDto.setDate(event.getDate());
+    eventDto.setDescription(event.getDescription());
     return eventDto;
   }
 }
