@@ -21,10 +21,33 @@ Resources:
           Properties:
             Path: /{proxy+}
             Method: ANY
+      Policies:
+        - Statement:
+            - Sid: DynamoDBReadPolicy
+              Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:Scan
+              Resource: !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${EventsDynamoDbTable}
       Tags:
         channel: DevWidgets
         series: serverless-101
-        episode: 003
+        episode: 004
+
+  EventsDynamoDbTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: Id
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      TableName: Events
+      Tags:
+        channel: DevWidgets
+        series: serverless-101
+        episode: 004
 
 Outputs:
   EventsFunction:
